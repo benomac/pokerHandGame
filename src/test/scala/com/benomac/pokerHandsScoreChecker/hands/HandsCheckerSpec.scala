@@ -3,52 +3,13 @@ package com.benomac.pokerHandsScoreChecker.hands
 import com.benomac.cards.*
 import com.benomac.cards.Suit.*
 import com.benomac.cards.Value.*
-import com.benomac.hands.Straight.*
+import com.benomac.hands.WinningHands.{BestHand, FourOfAKind, Remaining, ThreeOfAKind}
 import org.scalatest.funsuite.AnyFunSuite
+import com.benomac.pokerHandsScoreChecker.fixtures.HandsFixtures.*
 
 class HandsCheckerSpec extends AnyFunSuite {
 
-  val isAStraightHand: Hand = Hand(
-    List(
-      Card(Three(), Spades),
-      Card(Seven(), Spades),
-      Card(Five(), Spades),
-      Card(Six(), Spades),
-      Card(Four(), Spades)
-    )
-  )
 
-  val isNotAStraightHand: Hand = Hand(
-    List(
-      Card(Three(), Spades),
-      Card(Seven(), Spades),
-      Card(Five(), Spades),
-      Card(King(), Spades),
-      Card(Four(), Spades)
-    )
-  )
-
-  val aceHighStraight: Hand = Hand(
-    List(
-      Card(Ten(), Spades),
-      Card(Jack(), Spades),
-      Card(Ace(), Spades),
-      Card(Queen(), Spades),
-      Card(King(), Spades)
-
-    )
-  )
-
-  val aceLowStraight: Hand = Hand(
-    List(
-      Card(Three(), Spades),
-      Card(Ace(), Spades),
-      Card(Five(), Spades),
-      Card(Two(), Spades),
-      Card(Four(), Spades)
-
-    )
-  )
 
   test("hands should be sorted") {
     val expected1 = List(3, 4, 5, 6, 7)
@@ -123,11 +84,104 @@ class HandsCheckerSpec extends AnyFunSuite {
     assert(!isNotAStraightHand.isStraight())
   }
 
-  test("aceHighStraight should be a straight") {
-    assert(aceHighStraight.isStraight())
+  test("royalFlush should be a straight") {
+    assert(royalFlush.isStraight())
+  }
+
+  test("royalFlush should be a flush") {
+    assert(royalFlush.checkForRoyalStraight)
   }
 
   test("aceLowStraight should be a straight") {
-    assert(aceLowStraight.isStraight())
+    assert(aceLowStraightFlush.isStraight())
+  }
+
+  test("aceLowStraightFlush score should be 29") {
+    assert(aceLowStraightFlush.getScoreForHand == 29)
+  }
+
+  test("aceLowStraight score should be 28") {
+    assert(aceLowStraight.getScoreForHand == 28)
+  }
+
+  test("should be four of a kind") {
+    assert(fourOfAKind.isFourOfAKind)
+  }
+
+  test("should return the correct best hand four of a kind") {
+    val expected =
+      BestHand(
+        FourOfAKind(
+          List(
+            Card(Three(), Spades),
+            Card(Three(), Hearts),
+            Card(Three(), Clubs),
+            Card(Three(), Diamonds),
+          )
+        ),
+        Remaining(
+          List(
+            Card(Four(), Spades)
+          )
+        )
+      )
+    assert(fourOfAKind.getThreeOrFourOfAKind() == expected)
+  }
+
+  test("should be three of a kind") {
+    assert(threeOfAKind.isThreeOfAKind)
+  }
+
+  test("should return the correct best hand three of a kind") {
+    val expected =
+      BestHand(
+        ThreeOfAKind(
+          List(
+            Card(Three(), Spades),
+            Card(Three(), Hearts),
+            Card(Three(), Clubs)
+          )
+        ),
+        Remaining(
+          List(
+            Card(Four(), Spades),
+            Card(Five(), Diamonds)
+          )
+        )
+      )
+    assert(threeOfAKind.getThreeOrFourOfAKind() == expected)
+  }
+
+  test("is full house") {
+    assert(fullHouse.isFullHouse)
+  }
+
+  test("is not three of a kind") {
+    assert(!fullHouse.isThreeOfAKind)
+  }
+
+  test("is a pair") {
+    assert(pair.isPair)
+  }
+
+  test("is not a pair") {
+    assert(!twoPair.isPair)
+  }
+
+  test("is two pair") {
+    assert(twoPair.isTwoPair)
+  }
+
+  test("is not two pair") {
+    assert(!pair.isTwoPair)
+  }
+  
+  test("isHighCard should be true") {
+    assert(highCardOnly.isHighCard)
+  }
+
+  test("should return the highest card") {
+    val expected = Card(Seven(), Spades)
+    assert(highCardOnly.getHighCard == expected)
   }
 }

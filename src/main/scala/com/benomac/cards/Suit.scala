@@ -8,7 +8,7 @@ object Suit:
 
   case object Hearts extends Suit
 
-  case object Diamonds7 extends Suit
+  case object Diamonds extends Suit
 
   case object Clubs extends Suit
 

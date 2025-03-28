@@ -1,7 +1,5 @@
-val list = List(1, 2, 3, 4, 5)
-list.contains(1)
-list.map{
-  c => 
-    if(c == 1) 10
-    else c
-}
+import com.benomac
+
+List(1, 2, 1, 2, 4).count(x => x == 2)
+
+isFourOfAKind

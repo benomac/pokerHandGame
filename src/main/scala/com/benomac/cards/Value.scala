@@ -5,7 +5,7 @@ trait Value:
   val score: Int
 
 object Value:
-
+  // TODO add checker to classes to make sure the number provided is correct
   // change so that ace's value is always high, then change aceChecked to do the opposite.
   // as you really should be treating aces as high unless they're in a 1 - 5 straight
   case class Ace(override val score: Int = 1) extends Value
