@@ -3,13 +3,19 @@ package com.benomac.pokerHandsScoreChecker.hands
 import com.benomac.cards.*
 import com.benomac.cards.Suit.*
 import com.benomac.cards.Value.*
-import com.benomac.hands.WinningHands.{BestHand, FourOfAKind, Remaining, ThreeOfAKind}
+import com.benomac.hands.WinningHands
+import com.benomac.hands.WinningHands.{
+  BestHand,
+  FourOfAKind,
+  Pair,
+  Remaining,
+  ThreeOfAKind,
+  TwoPair
+}
 import org.scalatest.funsuite.AnyFunSuite
 import com.benomac.pokerHandsScoreChecker.fixtures.HandsFixtures.*
 
 class HandsCheckerSpec extends AnyFunSuite {
-
-
 
   test("hands should be sorted") {
     val expected1 = List(3, 4, 5, 6, 7)
@@ -60,7 +66,9 @@ class HandsCheckerSpec extends AnyFunSuite {
     )
   }
 
-  test("hands with too many cards due to duplicates should throw an exception") {
+  test(
+    "hands with too many cards due to duplicates should throw an exception"
+  ) {
     assertThrows[Exception](
       Hand(
         List(
@@ -116,7 +124,7 @@ class HandsCheckerSpec extends AnyFunSuite {
             Card(Three(), Spades),
             Card(Three(), Hearts),
             Card(Three(), Clubs),
-            Card(Three(), Diamonds),
+            Card(Three(), Diamonds)
           )
         ),
         Remaining(
@@ -125,7 +133,7 @@ class HandsCheckerSpec extends AnyFunSuite {
           )
         )
       )
-    assert(fourOfAKind.getThreeOrFourOfAKind() == expected)
+    assert(fourOfAKind.getThreeOrFourOfAKind == expected)
   }
 
   test("should be three of a kind") {
@@ -149,7 +157,7 @@ class HandsCheckerSpec extends AnyFunSuite {
           )
         )
       )
-    assert(threeOfAKind.getThreeOrFourOfAKind() == expected)
+    assert(threeOfAKind.getThreeOrFourOfAKind == expected)
   }
 
   test("is full house") {
@@ -175,7 +183,7 @@ class HandsCheckerSpec extends AnyFunSuite {
   test("is not two pair") {
     assert(!pair.isTwoPair)
   }
-  
+
   test("isHighCard should be true") {
     assert(highCardOnly.isHighCard)
   }
@@ -184,4 +192,39 @@ class HandsCheckerSpec extends AnyFunSuite {
     val expected = Card(Seven(), Spades)
     assert(highCardOnly.getHighCard == expected)
   }
+
+  test("should return a BestHand of TwoPair") {
+    val expected = BestHand(
+      TwoPair(
+        List(
+          Card(Three(), Spades),
+          Card(Three(), Hearts),
+          Card(Four(), Clubs),
+          Card(Four(), Spades)
+        )
+      ),
+      Remaining(List(Card(Five(), Diamonds)))
+    )
+    assert(twoPair.getPairOrTwoPairs == expected)
+  }
+
+  test("should return a BestHand of Pair") {
+    val expected = BestHand(
+      Pair(
+        List(
+          Card(Three(), Spades),
+          Card(Three(), Hearts)
+        )
+      ),
+      Remaining(
+        List(
+          Card(Four(), Clubs),
+          Card(Five(), Diamonds),
+          Card(Seven(), Spades)
+        )
+      )
+    )
+    assert(pair.getPairOrTwoPairs == expected)
+  }
+
 }
