@@ -98,6 +98,16 @@ case class Hand(cards: List[Card]) {
   def getStraightFlush: BestHand =
     BestHand(StraightFlush(cards), Remaining(Nil))
 
+  def multipleFoldChecker =
+    val values: List[Int] = cards.map(_.value.score)
+    val cardsChecked: (FourOfAKind, Remaining) = cards.foldLeft(FourOfAKind(Nil), Remaining(Nil))((bh, card) => {
+      if (valueCount(card, values, 4))
+        (FourOfAKind(bh._1.cards :+ card), bh._2)
+      else
+        (FourOfAKind(bh._1.cards), Remaining(bh._2.cards :+ card))
+    })
+    BestHand(cardsChecked._1, cardsChecked._2)
+
   @tailrec
   private final def threeOrFourHelper(hand: List[Card] = cards, winningHand: List[Card] = Nil, remaining: List[Card] = Nil): BestHand = {
     val values: List[Int] = cards.map(_.value.score)
@@ -149,7 +159,7 @@ case class Hand(cards: List[Card]) {
 
   def getHighCard: BestHand =
     if isHighCard then
-      BestHand(HighCard(makeAcesHigh.maxBy(_.value.score)), Remaining(Nil))
+      BestHand(HighCard(List(makeAcesHigh.maxBy(_.value.score))), Remaining(Nil))
     else
       throw new Exception("There is a better hand than high card.")
 
