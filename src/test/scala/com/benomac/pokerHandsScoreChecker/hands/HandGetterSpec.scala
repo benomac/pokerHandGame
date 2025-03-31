@@ -2,7 +2,7 @@ package com.benomac.pokerHandsScoreChecker.hands
 
 import com.benomac.cards.*
 import com.benomac.cards.Suit.*
-import com.benomac.cards.Value.*
+import com.benomac.cards.Rank.*
 import com.benomac.hands.WinningHand
 import com.benomac.hands.WinningHand.*
 import org.scalatest.funsuite.AnyFunSuite

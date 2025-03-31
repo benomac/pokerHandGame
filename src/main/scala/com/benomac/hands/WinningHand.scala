@@ -1,9 +1,7 @@
 package com.benomac.hands
 
-import com.benomac.cards.Value.*
-import com.benomac.cards.Suit.*
-import com.benomac.cards.Value.*
-import com.benomac.cards.{Card, Hand}
+import com.benomac.cards.Rank.*
+import com.benomac.cards.Card
 import com.benomac.hands
 
 

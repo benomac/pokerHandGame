@@ -1,10 +1,8 @@
-package com.benomac.cards
+package com.benomac.hands
 
-import com.benomac.cards.Card
-import com.benomac.cards.Value.*
-import com.benomac.cards.Suit.*
-import com.benomac.hands.WinningHand
-import com.benomac.hands.WinningHand.{BestHand, Flush, FourOfAKind, FullHouse, HighCard, Pair, Remaining, RoyalFlush, Straight, StraightFlush, ThreeOfAKind, TwoPair}
+import com.benomac.cards.Rank.*
+import com.benomac.cards.{Card, Rank}
+import com.benomac.hands.WinningHand.*
 
 import scala.annotation.tailrec
 
@@ -12,13 +10,13 @@ case class Hand(cards: List[Card]) {
 
   def makeAcesHigh: List[Card] = cards.map {
     card =>
-      if (card.value == Ace()) Card(Ace(14), card.suit)
+      if (card.rank == Ace()) Card(Ace(14), card.suit)
       else card
   }
 
   // TODO this is not finished
   def getScoreForHand: Int =
-    val initialScore = makeAcesHigh.map(_.value.score).sum
+    val initialScore = makeAcesHigh.map(_.rank.score).sum
     if (cards.map(_.suit).toSet.size == 1 && isStraight(cards))
       println("bonus")
       initialScore + 1 // may need to change the bonus score increase.
@@ -26,7 +24,7 @@ case class Hand(cards: List[Card]) {
       println("no bonus")
       initialScore
 
-  def valueMap: Map[Value, Int] = cards.groupBy(_.value).map { case (suit, cards) =>
+  def rankMap: Map[Rank, Int] = cards.groupBy(_.rank).map { case (suit, cards) =>
     suit -> cards.length
   }
 
@@ -34,19 +32,19 @@ case class Hand(cards: List[Card]) {
                                (emptyWinningHand: () => WinningHand,
                                 addWinningCard: List[Card] => WinningHand,
                                 addRemainingCard: List[Card] => Remaining): BestHand =
-    val values: List[Value] = cards.map(_.value)
+    val ranks: List[Rank] = cards.map(_.rank)
     cards.foldLeft(BestHand(emptyWinningHand(), Remaining(Nil)))((bh, card) => {
-      if (containsAmountOfValues(card = card, values = values, amount = multiple))
+      if (containsAmountOfRanks(card = card, rank = ranks, amount = multiple))
         BestHand(addWinningCard(bh.winningHand.cards :+ card), bh.remainingCards)
       else
         BestHand(bh.winningHand, addRemainingCard(bh.remainingCards.cards :+ card))
     })
 
-  private def containsAmountOfValues(card: Card, values: List[Value], amount: Int): Boolean =
-    values.count(_ == card.value) == amount
+  private def containsAmountOfRanks(card: Card, rank: List[Rank], amount: Int): Boolean =
+    rank.count(_ == card.rank) == amount
 
   def checkForRoyalStraight: Boolean =
-    cards.map(_.value) == List(Ten(), Jack(), Queen(), King(), Ace(14))
+    cards.map(_.rank) == List(Ten(), Jack(), Queen(), King(), Ace(14))
   
   // winning hands checkers
   def isRoyalFlush: Boolean =
@@ -60,12 +58,12 @@ case class Hand(cards: List[Card]) {
       isFlush
 
   def isFourOfAKind: Boolean =
-    valueMap.values.toList.contains(4)
+    rankMap.values.toList.contains(4)
 
   
   def isFullHouse: Boolean =
-    valueMap.values.toList.contains(3) &&
-      valueMap.values.toList.contains(2)
+    rankMap.values.toList.contains(3) &&
+      rankMap.values.toList.contains(2)
 
   def isFlush: Boolean =
     if (cards.map(_.suit).toSet.size == 1)
@@ -76,7 +74,7 @@ case class Hand(cards: List[Card]) {
   @tailrec
   final def isStraight(hand: List[Card] = cards): Boolean =
     (hand.headOption, hand.tail.headOption) match
-      case (Some(card1), Some(card2)) if card2.value.score - card1.value.score == 1 =>
+      case (Some(card1), Some(card2)) if card2.rank.score - card1.rank.score == 1 =>
         isStraight(hand.tail)
       case (Some(_), None) =>
         true
@@ -84,15 +82,15 @@ case class Hand(cards: List[Card]) {
 
 
   def isThreeOfAKind: Boolean =
-    valueMap.values.toList.contains(3) &&
-      !valueMap.values.toList.contains(2)
+    rankMap.values.toList.contains(3) &&
+      !rankMap.values.toList.contains(2)
 
   def isTwoPair: Boolean =
-    valueMap.values.toList.count(_ == 2) == 2
+    rankMap.values.toList.count(_ == 2) == 2
 
   def isPair: Boolean =
-    valueMap.values.toList.count(_ == 2) == 1 &&
-      valueMap.values.toList.count(_ == 3) != 1
+    rankMap.values.toList.count(_ == 2) == 1 &&
+      rankMap.values.toList.count(_ == 3) != 1
 
   def isHighCard: Boolean =
     !isRoyalFlush &&
@@ -165,7 +163,7 @@ case class Hand(cards: List[Card]) {
 
   def getHighCard: BestHand =
     if (isHighCard)
-      val highCard: Card = makeAcesHigh.maxBy(_.value.score)
+      val highCard: Card = makeAcesHigh.maxBy(_.rank.score)
       cards.foldLeft(BestHand(HighCard(Nil), Remaining(Nil))) {
         (bh, card) =>
           if (card == highCard)
@@ -216,7 +214,7 @@ case class Hand(cards: List[Card]) {
 object Hand:
 
   private def sortHand(hand: List[Card]): List[Card] =
-    hand.sorted { (x: Card, y: Card) => x.value.score - y.value.score }
+    hand.sorted { (x: Card, y: Card) => x.rank.score - y.rank.score }
 
 
   def apply(cards: List[Card]): Hand = {
@@ -229,10 +227,10 @@ object Hand:
     // so they should always be high as apposed to the inverse. Going to leave as low for now
     // as it's needed for sorting during dealing.
     def aceChecked(cards: List[Card] = cards): List[Card] =
-      if (cards.map(_.value).contains(Ace()) && cards.map(_.value).contains(King())) {
+      if (cards.map(_.rank).contains(Ace()) && cards.map(_.rank).contains(King())) {
         val cardsEdited: List[Card] = cards.map {
           c =>
-            if (c.value == Ace()) Card(Ace(14), c.suit)
+            if (c.rank == Ace()) Card(Ace(14), c.suit)
             else c
         }
         cardsEdited

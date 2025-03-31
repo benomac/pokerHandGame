@@ -1,9 +1,9 @@
 package com.benomac.pokerHandsScoreChecker.fixtures
 
-import com.benomac.cards.Hand
 import com.benomac.cards.*
 import com.benomac.cards.Suit.*
-import com.benomac.cards.Value.*
+import com.benomac.cards.Rank.*
+import com.benomac.hands.Hand
 
 
 object HandsFixtures:

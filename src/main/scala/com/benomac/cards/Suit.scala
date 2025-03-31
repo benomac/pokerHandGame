@@ -12,4 +12,5 @@ object Suit:
 
   case object Clubs extends Suit
 
+  val suits: List[Suit] = List(Spades, Hearts, Diamonds, Clubs)
 

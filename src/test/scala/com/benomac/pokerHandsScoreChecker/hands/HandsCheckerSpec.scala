@@ -2,20 +2,13 @@ package com.benomac.pokerHandsScoreChecker.hands
 
 import com.benomac.cards.*
 import com.benomac.cards.Suit.*
-import com.benomac.cards.Value.*
-import com.benomac.hands.WinningHand
-import com.benomac.hands.WinningHand.{
-  BestHand,
-  FourOfAKind,
-  HighCard,
-  Pair,
-  Remaining,
-  ThreeOfAKind,
-  TwoPair
-}
+import com.benomac.cards.Rank.*
+import com.benomac.hands.WinningHand.*
 import org.scalatest.funsuite.AnyFunSuite
 import com.benomac.pokerHandsScoreChecker.fixtures.HandsFixtures.*
 
+
+// TODO can probably delete this spec as HandGetterSpec cover all the "isX" methods
 class HandsCheckerSpec extends AnyFunSuite {
 
   test("isStraight should be true") {
