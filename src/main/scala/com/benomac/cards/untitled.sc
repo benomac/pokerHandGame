@@ -3,7 +3,7 @@ import com.benomac.cards.Suit.{Clubs, Diamonds, Hearts, Spades}
 import com.benomac.cards.Value.*
 import com.benomac.cards.{Card, Hand, Suit, Value}
 import com.benomac.hands.WinningHand
-import com.benomac.hands.WinningHands.{BestHand, Remaining, TwoPair}
+import com.benomac.hands.WinningHand.{BestHand, Remaining, TwoPair}
 
 import scala.collection.immutable.HashMap
 

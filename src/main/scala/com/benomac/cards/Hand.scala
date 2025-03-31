@@ -3,8 +3,8 @@ package com.benomac.cards
 import com.benomac.cards.Card
 import com.benomac.cards.Value.*
 import com.benomac.cards.Suit.*
-import com.benomac.hands.WinningHands
-import com.benomac.hands.WinningHands.{BestHand, Flush, FourOfAKind, FullHouse, HighCard, Pair, Remaining, RoyalFlush, Straight, StraightFlush, ThreeOfAKind, TwoPair}
+import com.benomac.hands.WinningHand
+import com.benomac.hands.WinningHand.{BestHand, Flush, FourOfAKind, FullHouse, HighCard, Pair, Remaining, RoyalFlush, Straight, StraightFlush, ThreeOfAKind, TwoPair}
 
 import scala.annotation.tailrec
 

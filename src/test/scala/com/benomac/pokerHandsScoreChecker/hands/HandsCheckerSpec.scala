@@ -3,8 +3,8 @@ package com.benomac.pokerHandsScoreChecker.hands
 import com.benomac.cards.*
 import com.benomac.cards.Suit.*
 import com.benomac.cards.Value.*
-import com.benomac.hands.WinningHands
-import com.benomac.hands.WinningHands.{
+import com.benomac.hands.WinningHand
+import com.benomac.hands.WinningHand.{
   BestHand,
   FourOfAKind,
   Pair,

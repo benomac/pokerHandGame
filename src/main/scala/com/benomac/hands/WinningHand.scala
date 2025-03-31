@@ -8,7 +8,7 @@ import com.benomac.hands
 
 trait WinningHand
 
-object WinningHands:
+object WinningHand:
 
   case class BestHand(winningHand: WinningHand, remainingCards: Remaining)
   
