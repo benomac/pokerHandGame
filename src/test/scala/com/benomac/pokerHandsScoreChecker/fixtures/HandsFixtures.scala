@@ -8,26 +8,6 @@ import com.benomac.cards.Value.*
 
 object HandsFixtures:
 
-  val isAStraightHand: Hand = Hand(
-    List(
-      Card(Three(), Spades),
-      Card(Seven(), Spades),
-      Card(Five(), Spades),
-      Card(Six(), Spades),
-      Card(Four(), Spades)
-    )
-  )
-
-  val isNotAStraightHand: Hand = Hand(
-    List(
-      Card(Three(), Spades),
-      Card(Seven(), Spades),
-      Card(Five(), Spades),
-      Card(King(), Spades),
-      Card(Four(), Spades)
-    )
-  )
-
   val royalFlush: Hand = Hand(
     List(
       Card(Ten(), Spades),
@@ -39,33 +19,12 @@ object HandsFixtures:
     )
   )
 
-  val aceLowStraightFlush: Hand = Hand(
+  val straightFlush: Hand = Hand(
     List(
       Card(Three(), Spades),
-      Card(Ace(), Spades),
+      Card(Seven(), Spades),
       Card(Five(), Spades),
-      Card(Two(), Spades),
-      Card(Four(), Spades)
-
-    )
-  )
-
-  val aceLowStraight: Hand = Hand(
-    List(
-      Card(Three(), Spades),
-      Card(Ace(), Hearts),
-      Card(Five(), Spades),
-      Card(Two(), Spades),
-      Card(Four(), Spades)
-    )
-  )
-
-  val threeOfAKind: Hand = Hand(
-    List(
-      Card(Three(), Spades),
-      Card(Three(), Hearts),
-      Card(Three(), Clubs),
-      Card(Five(), Diamonds),
+      Card(Six(), Spades),
       Card(Four(), Spades)
     )
   )
@@ -91,13 +50,33 @@ object HandsFixtures:
     )
   )
 
-  val pair: Hand = Hand(
+  val flush: Hand = Hand(
+    List(
+      Card(Three(), Spades),
+      Card(Seven(), Spades),
+      Card(Five(), Spades),
+      Card(King(), Spades),
+      Card(Four(), Spades)
+    )
+  )
+
+  val straight: Hand = Hand(
+    List(
+      Card(Three(), Spades),
+      Card(Four(), Hearts),
+      Card(Six(), Clubs),
+      Card(Five(), Diamonds),
+      Card(Seven(), Spades)
+    )
+  )
+
+  val threeOfAKind: Hand = Hand(
     List(
       Card(Three(), Spades),
       Card(Three(), Hearts),
-      Card(Four(), Clubs),
+      Card(Three(), Clubs),
       Card(Five(), Diamonds),
-      Card(Seven(), Spades)
+      Card(Four(), Spades)
     )
   )
 
@@ -111,6 +90,48 @@ object HandsFixtures:
     )
   )
 
+  val pair: Hand = Hand(
+    List(
+      Card(Three(), Spades),
+      Card(Three(), Hearts),
+      Card(Four(), Clubs),
+      Card(Five(), Diamonds),
+      Card(Seven(), Spades)
+    )
+  )
+
+
+
+
+  val aceLowStraightFlush: Hand = Hand(
+    List(
+      Card(Three(), Spades),
+      Card(Ace(), Spades),
+      Card(Five(), Spades),
+      Card(Two(), Spades),
+      Card(Four(), Spades)
+
+    )
+  )
+
+  val aceLowStraight: Hand = Hand(
+    List(
+      Card(Three(), Spades),
+      Card(Ace(), Hearts),
+      Card(Five(), Spades),
+      Card(Two(), Spades),
+      Card(Four(), Spades)
+    )
+  )
+
+
+
+
+
+  
+
+  
+
   val isUnOrderedStraight: Hand = Hand(List(
     Card(Three(), Spades),
     Card(Seven(), Spades),
@@ -118,7 +139,7 @@ object HandsFixtures:
     Card(Six(), Spades),
     Card(Four(), Spades))
   )
-  
+
   val highCardOnly: Hand = Hand(List(
     Card(Two(), Spades),
     Card(Seven(), Spades),

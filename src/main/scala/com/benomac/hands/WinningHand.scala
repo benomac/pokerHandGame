@@ -7,9 +7,9 @@ import com.benomac.cards.{Card, Hand}
 import com.benomac.hands
 
 
-trait WinningHand: 
+sealed trait WinningHand: 
   val cards: List[Card]
-
+    
 object WinningHand:
 
   case class BestHand(winningHand: WinningHand, remainingCards: Remaining)
@@ -35,9 +35,7 @@ object WinningHand:
   case class Pair(cards: List[Card]) extends WinningHand
   
   case class HighCard(cards: List[Card]) extends WinningHand
-  
-  
-  
+
   
   
   

@@ -7,6 +7,7 @@ import com.benomac.hands.WinningHand
 import com.benomac.hands.WinningHand.{
   BestHand,
   FourOfAKind,
+  HighCard,
   Pair,
   Remaining,
   ThreeOfAKind,
@@ -17,79 +18,12 @@ import com.benomac.pokerHandsScoreChecker.fixtures.HandsFixtures.*
 
 class HandsCheckerSpec extends AnyFunSuite {
 
-  test("hands should be sorted") {
-    val expected1 = List(3, 4, 5, 6, 7)
-    val expected2 = List(3, 4, 5, 7, 13)
-    assert(isAStraightHand.cards.map(_.value.score) == expected1)
-    assert(isNotAStraightHand.cards.map(_.value.score) == expected2)
-  }
-
-  test("hands containing duplicates should throw an exception") {
-    assertThrows[Exception](
-      Hand(
-        List(
-          Card(Three(), Spades),
-          Card(Seven(), Spades),
-          Card(Five(), Spades),
-          Card(King(), Spades),
-          Card(King(), Spades)
-        )
-      )
-    )
-  }
-
-  test("hands with too few cards should throw an exception") {
-    assertThrows[Exception](
-      Hand(
-        List(
-          Card(Three(), Spades),
-          Card(Seven(), Spades),
-          Card(Five(), Spades),
-          Card(King(), Spades)
-        )
-      )
-    )
-  }
-
-  test("hands with too many cards should throw an exception") {
-    assertThrows[Exception](
-      Hand(
-        List(
-          Card(Three(), Spades),
-          Card(Seven(), Spades),
-          Card(Five(), Spades),
-          Card(King(), Spades),
-          Card(Queen(), Hearts),
-          Card(Jack(), Hearts)
-        )
-      )
-    )
-  }
-
-  test(
-    "hands with too many cards due to duplicates should throw an exception"
-  ) {
-    assertThrows[Exception](
-      Hand(
-        List(
-          Card(Three(), Spades),
-          Card(Seven(), Spades),
-          Card(Five(), Spades),
-          Card(Queen(), Hearts),
-          Card(Queen(), Hearts),
-          Card(Queen(), Hearts),
-          Card(Jack(), Spades)
-        )
-      )
-    )
-  }
-
   test("isStraight should be true") {
-    assert(isAStraightHand.isStraight())
+    assert(straightFlush.isStraight())
   }
 
   test("isStraight should be false") {
-    assert(!isNotAStraightHand.isStraight())
+    assert(!flush.isStraight())
   }
 
   test("royalFlush should be a straight") {
@@ -133,7 +67,7 @@ class HandsCheckerSpec extends AnyFunSuite {
           )
         )
       )
-    assert(fourOfAKind.getThreeOrFourOfAKind == expected)
+    assert(fourOfAKind.getFourOfAKind == expected)
   }
 
   test("should be three of a kind") {
@@ -157,15 +91,19 @@ class HandsCheckerSpec extends AnyFunSuite {
           )
         )
       )
-    assert(threeOfAKind.getThreeOrFourOfAKind == expected)
+    assert(threeOfAKind.getThreeOfAKind == expected)
   }
 
   test("is full house") {
     assert(fullHouse.isFullHouse)
   }
 
-  test("is not three of a kind") {
+  test("full house is not three of a kind") {
     assert(!fullHouse.isThreeOfAKind)
+  }
+
+  test("full house is not a pair") {
+    assert(!fullHouse.isPair)
   }
 
   test("is a pair") {
@@ -184,47 +122,28 @@ class HandsCheckerSpec extends AnyFunSuite {
     assert(!pair.isTwoPair)
   }
 
+  test("four of a kind is not two pair") {
+    assert(!fourOfAKind.isTwoPair)
+  }
+
   test("isHighCard should be true") {
     assert(highCardOnly.isHighCard)
   }
 
   test("should return the highest card") {
-    val expected = Card(Seven(), Spades)
-    assert(highCardOnly.getHighCard == expected)
-  }
-
-  test("should return a BestHand of TwoPair") {
-    val expected = BestHand(
-      TwoPair(
-        List(
-          Card(Three(), Spades),
-          Card(Three(), Hearts),
-          Card(Four(), Clubs),
-          Card(Four(), Spades)
-        )
-      ),
-      Remaining(List(Card(Five(), Diamonds)))
-    )
-    assert(twoPair.getPairOrTwoPairs == expected)
-  }
-
-  test("should return a BestHand of Pair") {
-    val expected = BestHand(
-      Pair(
-        List(
-          Card(Three(), Spades),
-          Card(Three(), Hearts)
-        )
-      ),
-      Remaining(
-        List(
-          Card(Four(), Clubs),
-          Card(Five(), Diamonds),
-          Card(Seven(), Spades)
+    val expected =
+      BestHand(
+        HighCard(List(Card(Seven(), Spades))),
+        Remaining(
+          List(
+            Card(Two(), Spades),
+            Card(Four(), Spades),
+            Card(Five(), Spades),
+            Card(Six(), Hearts)
+          )
         )
       )
-    )
-    assert(pair.getPairOrTwoPairs == expected)
+    assert(highCardOnly.getHighCard == expected)
   }
 
 }

@@ -30,8 +30,20 @@ case class Hand(cards: List[Card]) {
     suit -> cards.length
   }
 
-  private def valueCount(card: Card, values: List[Int], amount: Int): Boolean =
-    values.count(_ == card.value.score) == amount
+  private def getMultiplesHands(multiple: Int)
+                               (emptyWinningHand: () => WinningHand,
+                                addWinningCard: List[Card] => WinningHand,
+                                addRemainingCard: List[Card] => Remaining): BestHand =
+    val values: List[Value] = cards.map(_.value)
+    cards.foldLeft(BestHand(emptyWinningHand(), Remaining(Nil)))((bh, card) => {
+      if (containsAmountOfValues(card = card, values = values, amount = multiple))
+        BestHand(addWinningCard(bh.winningHand.cards :+ card), bh.remainingCards)
+      else
+        BestHand(bh.winningHand, addRemainingCard(bh.remainingCards.cards :+ card))
+    })
+
+  private def containsAmountOfValues(card: Card, values: List[Value], amount: Int): Boolean =
+    values.count(_ == card.value) == amount
 
   def checkForRoyalStraight: Boolean =
     cards.map(_.value) == List(Ten(), Jack(), Queen(), King(), Ace(14))
@@ -56,7 +68,7 @@ case class Hand(cards: List[Card]) {
       valueMap.values.toList.contains(2)
 
   def isFlush: Boolean =
-    if (cards.map(_.suit).toSet.size == 1 && isStraight(cards))
+    if (cards.map(_.suit).toSet.size == 1)
       true
     else
       false
@@ -79,7 +91,8 @@ case class Hand(cards: List[Card]) {
     valueMap.values.toList.count(_ == 2) == 2
 
   def isPair: Boolean =
-    valueMap.values.toList.count(_ == 2) == 1
+    valueMap.values.toList.count(_ == 2) == 1 &&
+      valueMap.values.toList.count(_ == 3) != 1
 
   def isHighCard: Boolean =
     !isRoyalFlush &&
@@ -98,32 +111,41 @@ case class Hand(cards: List[Card]) {
   def getStraightFlush: BestHand =
     BestHand(StraightFlush(cards), Remaining(Nil))
 
-  def multipleFoldChecker =
-    val values: List[Int] = cards.map(_.value.score)
-    val cardsChecked: (FourOfAKind, Remaining) = cards.foldLeft(FourOfAKind(Nil), Remaining(Nil))((bh, card) => {
-      if (valueCount(card, values, 4))
-        (FourOfAKind(bh._1.cards :+ card), bh._2)
-      else
-        (FourOfAKind(bh._1.cards), Remaining(bh._2.cards :+ card))
-    })
-    BestHand(cardsChecked._1, cardsChecked._2)
-
-  @tailrec
-  private final def threeOrFourHelper(hand: List[Card] = cards, winningHand: List[Card] = Nil, remaining: List[Card] = Nil): BestHand = {
-    val values: List[Int] = cards.map(_.value.score)
-    hand match
-      case ::(head, next) if valueCount(head, values, 3) => threeOrFourHelper(next, winningHand :+ head, remaining)
-      case ::(head, next) if valueCount(head, values, 4) => threeOrFourHelper(next, winningHand :+ head, remaining)
-      case ::(head, next) if valueCount(head, values, 1) => threeOrFourHelper(next, winningHand, remaining :+ head)
-      case _ => winningHand.length match
-        case 4 => BestHand(FourOfAKind(winningHand), Remaining(remaining)) //may need to sort remaining
-        case 3 => BestHand(ThreeOfAKind(winningHand), Remaining(remaining))
-  }
-  def getThreeOrFourOfAKind: BestHand =
-    if (isThreeOfAKind || isFourOfAKind)
-      threeOrFourHelper()
+  def getFourOfAKind: BestHand =
+    if (!isFourOfAKind) throw new Exception("Not four of a kind")
     else
-      throw new Exception("This is not three or four of a kind")
+      this.getMultiplesHands(multiple = 4)(
+        () => FourOfAKind(Nil),
+        cards => FourOfAKind(cards),
+        cards => Remaining(cards)
+      )
+
+  def getThreeOfAKind: BestHand =
+    if (!isThreeOfAKind) throw new Exception("Not three of a kind")
+    else
+      this.getMultiplesHands(multiple = 3)(
+        () => ThreeOfAKind(Nil),
+        cards => ThreeOfAKind(cards),
+        cards => Remaining(cards)
+      )
+
+  def getPair: BestHand =
+    if (!isPair) throw new Exception("Not a pair")
+    else
+      this.getMultiplesHands(multiple = 2)(
+        () => Pair(Nil),
+        cards => Pair(cards),
+        cards => Remaining(cards)
+      )
+
+  def getTwoPair: BestHand =
+    if (!isTwoPair) throw new Exception("Not Two pair")
+    else
+      this.getMultiplesHands(multiple = 2)(
+        () => TwoPair(Nil),
+        cards => TwoPair(cards),
+        cards => Remaining(cards)
+      )
 
 
   def getFullHouse: BestHand =
@@ -141,40 +163,31 @@ case class Hand(cards: List[Card]) {
     else
       throw new Exception("This is not a straight")
 
-  def getPairOrTwoPairs: BestHand =
-    if (isTwoPair || isPair) {
-      @tailrec
-      def helper(hand: List[Card] = cards, winningHand: List[Card] = Nil, remaining: List[Card] = Nil): BestHand = {
-        val values: List[Int] = cards.map(_.value.score)
-        hand match
-          case ::(head, next) if valueCount(head, values, 2) => helper(next, winningHand :+ head, remaining)
-          case ::(head, next) if valueCount(head, values, 1) => helper(next, winningHand, remaining :+ head)
-          case _ => winningHand.length match
-            case 4 => BestHand(TwoPair(winningHand), Remaining(remaining)) //may need to sort remaining
-            case 2 => BestHand(Pair(winningHand), Remaining(remaining))
-      }
-      helper()
-    } else
-      throw new Exception("There are no pairs in this hand")
-
   def getHighCard: BestHand =
-    if isHighCard then
-      BestHand(HighCard(List(makeAcesHigh.maxBy(_.value.score))), Remaining(Nil))
+    if (isHighCard)
+      val highCard: Card = makeAcesHigh.maxBy(_.value.score)
+      cards.foldLeft(BestHand(HighCard(Nil), Remaining(Nil))) {
+        (bh, card) =>
+          if (card == highCard)
+            BestHand(HighCard(bh.winningHand.cards :+ card), bh.remainingCards)
+          else
+            BestHand(bh.winningHand, Remaining(bh.remainingCards.cards :+ card))
+      }
     else
       throw new Exception("There is a better hand than high card.")
 
 
   def returnBestHand(
-      isRoyalFlush: Boolean,
-      isStraightFlush: Boolean,
-      isFourOfAkind: Boolean,
-      isFullHouse: Boolean,
-      isFlush: Boolean,
-      isStraight: Boolean,
-      isThreeOfAkind: Boolean,
-      isTwoPair: Boolean,
-      isPair: Boolean,
-      isHighCard: Boolean
+      isRoyalFlush: Boolean = isRoyalFlush,
+      isStraightFlush: Boolean = isStraightFlush,
+      isFourOfAkind: Boolean = isFourOfAKind,
+      isFullHouse: Boolean = isFullHouse,
+      isFlush: Boolean = isFlush,
+      isStraight: Boolean = isStraight(),
+      isThreeOfAkind: Boolean = isThreeOfAKind,
+      isTwoPair: Boolean = isTwoPair,
+      isPair: Boolean = isPair,
+      isHighCard: Boolean = isHighCard
                           ): BestHand =
     (isRoyalFlush,
       isStraightFlush,
@@ -188,15 +201,15 @@ case class Hand(cards: List[Card]) {
       isHighCard) match {
       case (true, _, _, _, _, _, _, _, _, _) => getRoyalFlush
       case (_, true, _, _, _, _, _, _, _, _) => getStraightFlush
-      case (_, _, true, _, _, _, _, _, _, _) => getThreeOrFourOfAKind
+      case (_, _, true, _, _, _, _, _, _, _) => getFourOfAKind
       case (_, _, _, true, _, _, _, _, _, _) => getFullHouse
       case (_, _, _, _, true, _, _, _, _, _) => getFlush
       case (_, _, _, _, _, true, _, _, _, _) => getStraight
-      case (_, _, _, _, _, _, true, _, _, _) => getThreeOrFourOfAKind
-      case (_, _, _, _, _, _, _, true, _, _) => getPairOrTwoPairs
-      case (_, _, _, _, _, _, _, _, true, _) => getPairOrTwoPairs
+      case (_, _, _, _, _, _, true, _, _, _) => getThreeOfAKind
+      case (_, _, _, _, _, _, _, true, _, _) => getTwoPair
+      case (_, _, _, _, _, _, _, _, true, _) => getPair
       case (_, _, _, _, _, _, _, _, _, true) => getHighCard
-      case _ => ???
+      case _ => throw new Exception("Uh-oh! something's really gone wrong if you're seeing this message!")
     }
 }
 
