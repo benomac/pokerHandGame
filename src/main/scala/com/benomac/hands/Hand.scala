@@ -17,7 +17,7 @@ case class Hand(cards: List[Card]) {
   // TODO this is not finished
   def getScoreForHand: Int =
     val initialScore = makeAcesHigh.map(_.rank.score).sum
-    if (cards.map(_.suit).toSet.size == 1 && isStraight(cards))
+    if (cards.map(_.suit).toSet.size == 1 && isStraight(cards)) // TODO change toset to distinct
       println("bonus")
       initialScore + 1 // may need to change the bonus score increase.
     else
