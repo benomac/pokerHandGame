@@ -2,7 +2,7 @@ package com.benomac.hands
 
 import com.benomac.cards.Rank.*
 import com.benomac.cards.{Card, Rank}
-import com.benomac.hands.WinningHand.*
+import com.benomac.hands.PokerHand.*
 
 import scala.annotation.tailrec
 
@@ -24,36 +24,35 @@ case class Hand(cards: List[Card]) {
       println("no bonus")
       initialScore
 
-  def rankMap: Map[Rank, Int] = cards.groupBy(_.rank).map { case (suit, cards) =>
+  private def rankMap: Map[Rank, Int] = cards.groupBy(_.rank).map { case (suit, cards) =>
     suit -> cards.length
   }
 
   private def getMultiplesHands(multiple: Int)
-                               (emptyWinningHand: () => WinningHand,
-                                addWinningCard: List[Card] => WinningHand,
+                               (emptyWinningHand: () => PokerHand,
+                                addWinningCard: List[Card] => PokerHand,
                                 addRemainingCard: List[Card] => Remaining): BestHand =
     val ranks: List[Rank] = cards.map(_.rank)
     cards.foldLeft(BestHand(emptyWinningHand(), Remaining(Nil)))((bh, card) => {
-      if (containsAmountOfRanks(card = card, rank = ranks, amount = multiple))
+      if (containsAmountOfRanks(card = card, ranks = ranks, amount = multiple))
         BestHand(addWinningCard(bh.winningHand.cards :+ card), bh.remainingCards)
       else
         BestHand(bh.winningHand, addRemainingCard(bh.remainingCards.cards :+ card))
     })
 
-  private def containsAmountOfRanks(card: Card, rank: List[Rank], amount: Int): Boolean =
-    rank.count(_ == card.rank) == amount
+  private def containsAmountOfRanks(card: Card, ranks: List[Rank], amount: Int): Boolean =
+    ranks.count(_ == card.rank) == amount
 
-  def checkForRoyalStraight: Boolean =
+  def isRoyalStraight: Boolean =
     cards.map(_.rank) == List(Ten(), Jack(), Queen(), King(), Ace(14))
   
   // winning hands checkers
   def isRoyalFlush: Boolean =
-    checkForRoyalStraight &&
-      isStraight(cards) &&
+    isRoyalStraight &&
       isFlush
 
   def isStraightFlush: Boolean =
-    !checkForRoyalStraight &&
+    !isRoyalStraight &&
       isStraight(cards) &&
       isFlush
 
@@ -73,12 +72,20 @@ case class Hand(cards: List[Card]) {
 
   @tailrec
   final def isStraight(hand: List[Card] = cards): Boolean =
-    (hand.headOption, hand.tail.headOption) match
+    val head = hand.headOption
+    val tailHead = hand.tail.headOption
+    (head, tailHead) match
       case (Some(card1), Some(card2)) if card2.rank.score - card1.rank.score == 1 =>
         isStraight(hand.tail)
       case (Some(_), None) =>
         true
       case _ => false
+
+//  final def isStraight(hand: List[Card] = cards): Boolean =
+//    hand.map(_.rank.score).sliding(2).forall{
+//      case List(a, b) => a + 1 == b
+//      case _ => false
+//    }
 
 
   def isThreeOfAKind: Boolean =
@@ -163,7 +170,7 @@ case class Hand(cards: List[Card]) {
 
   def getHighCard: BestHand =
     if (isHighCard)
-      val highCard: Card = makeAcesHigh.maxBy(_.rank.score)
+      val highCard: Card = cards.maxBy(_.rank.score)
       cards.foldLeft(BestHand(HighCard(Nil), Remaining(Nil))) {
         (bh, card) =>
           if (card == highCard)

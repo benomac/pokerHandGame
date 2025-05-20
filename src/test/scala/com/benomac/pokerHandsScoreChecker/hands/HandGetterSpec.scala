@@ -3,8 +3,8 @@ package com.benomac.pokerHandsScoreChecker.hands
 import com.benomac.cards.*
 import com.benomac.cards.Suit.*
 import com.benomac.cards.Rank.*
-import com.benomac.hands.WinningHand
-import com.benomac.hands.WinningHand.*
+import com.benomac.hands.PokerHand
+import com.benomac.hands.PokerHand.*
 import org.scalatest.funsuite.AnyFunSuite
 import com.benomac.pokerHandsScoreChecker.fixtures.HandsFixtures.*
 

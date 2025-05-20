@@ -3,7 +3,7 @@ package com.benomac.pokerHandsScoreChecker.hands
 import com.benomac.cards.*
 import com.benomac.cards.Suit.*
 import com.benomac.cards.Rank.*
-import com.benomac.hands.WinningHand.*
+import com.benomac.hands.PokerHand.*
 import org.scalatest.funsuite.AnyFunSuite
 import com.benomac.pokerHandsScoreChecker.fixtures.HandsFixtures.*
 
@@ -24,7 +24,11 @@ class HandsCheckerSpec extends AnyFunSuite {
   }
 
   test("royalFlush should be a flush") {
-    assert(royalFlush.checkForRoyalStraight)
+    assert(royalFlush.isFlush)
+  }
+
+  test("royalFlush should be a royal flush") {
+    assert(royalFlush.isRoyalFlush)
   }
 
   test("aceLowStraight should be a straight") {
@@ -43,48 +47,16 @@ class HandsCheckerSpec extends AnyFunSuite {
     assert(fourOfAKind.isFourOfAKind)
   }
 
-  test("should return the correct best hand four of a kind") {
-    val expected =
-      BestHand(
-        FourOfAKind(
-          List(
-            Card(Three(), Spades),
-            Card(Three(), Hearts),
-            Card(Three(), Clubs),
-            Card(Three(), Diamonds)
-          )
-        ),
-        Remaining(
-          List(
-            Card(Four(), Spades)
-          )
-        )
-      )
-    assert(fourOfAKind.getFourOfAKind == expected)
-  }
-
   test("should be three of a kind") {
     assert(threeOfAKind.isThreeOfAKind)
   }
 
-  test("should return the correct best hand three of a kind") {
-    val expected =
-      BestHand(
-        ThreeOfAKind(
-          List(
-            Card(Three(), Spades),
-            Card(Three(), Hearts),
-            Card(Three(), Clubs)
-          )
-        ),
-        Remaining(
-          List(
-            Card(Four(), Spades),
-            Card(Five(), Diamonds)
-          )
-        )
-      )
-    assert(threeOfAKind.getThreeOfAKind == expected)
+  test("three of a kind should not be a pair") {
+    assert(!threeOfAKind.isPair)
+  }
+
+  test("four of a kind should not be a pair") {
+    assert(!fourOfAKind.isPair)
   }
 
   test("is full house") {
@@ -123,20 +95,6 @@ class HandsCheckerSpec extends AnyFunSuite {
     assert(highCardOnly.isHighCard)
   }
 
-  test("should return the highest card") {
-    val expected =
-      BestHand(
-        HighCard(List(Card(Seven(), Spades))),
-        Remaining(
-          List(
-            Card(Two(), Spades),
-            Card(Four(), Spades),
-            Card(Five(), Spades),
-            Card(Six(), Hearts)
-          )
-        )
-      )
-    assert(highCardOnly.getHighCard == expected)
-  }
+  
 
 }

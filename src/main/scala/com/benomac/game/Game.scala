@@ -1,35 +1,45 @@
 package com.benomac.game
 
 import com.benomac.cards.Deck.createDeck
-import com.benomac.cards.Rank.{Ace, Jack, King, Queen, Ten}
+import com.benomac.cards.Rank.*
 import com.benomac.cards.Suit.*
 import com.benomac.cards.{Card, Deck}
 import com.benomac.hands.Hand
-import com.benomac.hands.WinningHand.{BestHand, Remaining, RoyalFlush, ThreeOfAKind}
+import com.benomac.hands.PokerHand.{BestHand, Remaining, RoyalFlush, ThreeOfAKind}
 
-case class Game(player1: Hand, player2: Hand)
+case class Game(player1Hand: Hand, player2Hand: Hand)
 
 object Game {
   
   def dealGame(deck: Deck): Game = {
-    println(deck)
     val hands = deck.cards.foldLeft(List[Card](), List[Card]())(
-      (game, card) => {
-        val player1Cards: List[Card] = game._1
-        val player2Cards: List[Card] = game._2
-        (player1Cards.length, player2Cards.length) match
-          case (5, 5) => (player1Cards, player2Cards)
-          case (p1, p2) if p1 > p2 => (player1Cards, player2Cards :+ card)
-          case _ => (player1Cards :+ card, player2Cards)
+      (hands, card) => {
+        val (p2Cards, p1Cards) = hands
+        (p2Cards.length, p1Cards.length) match
+          case (5, 5) => (p2Cards, p1Cards)
+          case (p1, p2) if p1 > p2 => (p2Cards, p1Cards :+ card)
+          case _ => (p2Cards :+ card, p1Cards)
       }
     )
-    Game(Hand(hands._1), Hand(hands._2))
+    Game(Hand.apply(hands._1), Hand(hands._2))
   }
 
   def main(args: Array[String]): Unit = {
-    val game = dealGame(createDeck.shuffleDeck)
-    println(game.player1.returnBestHand().showBestHand)
-    println(game.player2.returnBestHand().showBestHand)
+    val game = dealGame(createDeck)
+    game.player1Hand.cards.foreach(c => println(s"suit = ${c.suit}, rank = ${c.rank}"))
+    println(game.player1Hand.returnBestHand().showBestHand)
+    println(game.player2Hand.returnBestHand().showBestHand)
+
+//    val highCard = Hand(
+//      List(
+//        Card(Ace(14), Clubs),
+//        Card(Seven(), Hearts),
+//        Card(Three(), Hearts),
+//        Card(Five(), Hearts),
+//        Card(Six(), Diamonds)
+//      )
+//    )
+//    println(highCard.returnBestHand().showBestHand)
 //    println(
 //      BestHand(
 //        ThreeOfAKind(
